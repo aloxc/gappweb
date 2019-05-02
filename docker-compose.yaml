@@ -70,6 +70,8 @@ services:
     depends_on:
       - gapporder
       - gappuser
+    ports:
+      - 80:80
     environment:
       ORDER_SERVER_HOST: gapporder
       USER_SERVER_HOST: gappuser
