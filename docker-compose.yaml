@@ -43,7 +43,7 @@ services:
       MYSQL_ROOT_PASSWORD: Jjke34jcjexje*d
       MYSQL_DATABASE: gapporder
     volumes:
-      - /gapp/user/mysql:/var/lib/mysql
+      - /gapp/order/mysql:/var/lib/mysql
     networks:
       - gappnetwork
 
@@ -53,16 +53,14 @@ services:
       - gappnetwork
     depends_on:
       - gappordermysql
-      - gapporderredis
     expose:
       - 13331
     environment:
-      REDIS_MAXACTIVE : 10
       SERVER_PORT : 13331
-      USER_MYSQL_DATABASE_NAME : gapporder
-      USER_MYSQL_HOST : gappordermysql:3306
-      USER_MYSQL_USER : root
-      USER_MYSQL_PASSWORD : Jjke34jcjexje*d
+      ORDER_MYSQL_DATABASE_NAME : gapporder
+      ORDER_MYSQL_HOST : gappordermysql:3306
+      ORDER_MYSQL_USER : root
+      ORDER_MYSQL_PASSWORD : Jjke34jcjexje*d
       WAIT_MYSQL_SETUP_SECOND: 20
 
   gappweb:
