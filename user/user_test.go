@@ -18,7 +18,7 @@ func TestGetUserByIdAndPassowrd(t *testing.T) {
 	GetUser(user)
 }
 func TestRegister(t *testing.T) {
-	var userName = "admin"
+	var userName = "aloxc"
 	var password = "111111"
 	var level = User_Level_OK
 	Register(userName, password, level)

@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aloxc/gappweb/config"
 	"github.com/aloxc/gappweb/io"
 	"github.com/smallnest/rpcx/client"
 	"github.com/smallnest/rpcx/log"
+	"os"
+	"time"
 )
 
 type User_Level int
@@ -17,19 +20,32 @@ const (
 	User_LEVEL_BLACK_LIST                   //黑名单用户
 )
 
+var userSrvHost string = ""
+
+func init() {
+	userSrvHost = os.Getenv(config.USER_SERVER_HOST)
+	if userSrvHost == "" {
+		userSrvHost = config.USER_SERVER_HOST_DEFAULT
+	}
+}
+
 type User struct {
-	Id       int32
-	UserName string
-	Password string
-	Level    User_Level
+	Id         int32
+	UserName   string
+	Password   string
+	Level      User_Level
+	CreateTime time.Time
+	Version    int
+	Age        uint8
 }
 
 func (this *User) String() string {
-	return fmt.Sprintf("User[id:%d,name:%s,password:%s,level:%d]", this.Id, this.UserName, this.Password, this.Level)
+	return fmt.Sprintf("User[id:%d,name:%s,password:%s,level:%d,age:%d,createTime:%s]",
+		this.Id, this.UserName, this.Password, this.Level, this.Age, this.CreateTime)
 }
 
 func GetUser(user *User) {
-	d := client.NewPeer2PeerDiscovery("tcp@localhost:13331", "")
+	d := client.NewPeer2PeerDiscovery("tcp@"+userSrvHost, "")
 	xclient := client.NewXClient("gappuser", client.Failtry, client.RandomSelect, d, client.DefaultOption)
 	defer xclient.Close()
 	request := &io.Request{
@@ -53,11 +69,10 @@ func GetUser(user *User) {
 	if err != nil {
 		log.Fatalf("failed to call: %v", err)
 	}
-	log.Infof("[%d].info = %s", user.Id, user.String())
 }
 func Register(userName string, password string, level User_Level) *User {
-	d := client.NewPeer2PeerDiscovery("tcp@localhost:13331", "")
-	xclient := client.NewXClient("gappuser", client.Failtry, client.RandomSelect, d, client.DefaultOption)
+	d := client.NewPeer2PeerDiscovery("tcp@"+userSrvHost, "")
+	xclient := client.NewXClient(config.USER_SERVER_PATH, client.Failtry, client.RandomSelect, d, client.DefaultOption)
 	defer xclient.Close()
 	request := &io.Request{
 		Method: "register",
@@ -73,7 +88,9 @@ func Register(userName string, password string, level User_Level) *User {
 		},
 	}
 	response := &io.Response{}
-	err := xclient.Call(context.Background(), "Execute", request, response)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*time.Duration(5))
+	defer cancelFunc()
+	err := xclient.Call(ctx, "Execute", request, response)
 	if err != nil {
 		log.Fatalf("failed to call: %v", err)
 	}
