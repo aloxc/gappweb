@@ -7,6 +7,7 @@ services:
 
   gappusermysql:
     image: mysql:5.6.43
+    command: --explicit_defaults_for_timestamp=true
     environment:
       MYSQL_ROOT_PASSWORD: Xjentj53Ijr
       MYSQL_DATABASE: gappuser
@@ -38,6 +39,7 @@ services:
     image: mysql:5.6.43
     networks:
       - gappnetwork
+    command: --explicit_defaults_for_timestamp=true
     environment:
       MYSQL_ROOT_PASSWORD: Bweikjt34xe
       MYSQL_DATABASE: gapporder
