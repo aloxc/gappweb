@@ -1,0 +1,59 @@
+services:
+  gappuserredis:
+    image: redis
+
+  gappusermysql:
+    image: mysql:5.6.43
+      environment:
+        MYSQL_ROOT_PASSWORD: Xjentj53Ijr
+        MYSQL_DATABASE: gappuser
+      volumes:
+        - /gapp/user/mysql:/var/lib/mysql
+
+  gappuser:
+    image: aloxc/gappuser
+    depends_on:
+      - gappusermysql
+      - gappuserredis
+    expose:
+      - 13331
+    environment:
+      REDIS_HOST : gappuserredis
+      REDIS_MAXIDLE : 1
+      REDIS_MAXACTIVE : 10
+      SERVER_PORT : 13331
+      USER_MYSQL_DATABASE_NAME : gappuser
+      USER_MYSQL_HOST : gappusermysql:3306
+      USER_MYSQL_USER : root
+      USER_MYSQL_PASSWORD : Xjentj53Ijr
+
+  gappordermysql:
+    image: mysql:5.6.43
+      environment:
+        MYSQL_ROOT_PASSWORD: Bweikjt34xe
+        MYSQL_DATABASE: gapporder
+      volumes:
+        - /gapp/order/mysql:/var/lib/mysql
+
+  gapporder:
+    image: aloxc/gapporder
+    depends_on:
+      - gappordermysql
+    expose:
+      - 13331
+    environment:
+      SERVER_PORT : 13331
+      ORDER_MYSQL_DATABASE_NAME : gapporder
+      ORDER_MYSQL_HOST : gappordermysql:3306
+      ORDER_MYSQL_USER : root
+      ORDER_MYSQL_PASSWORD : Bweikjt34xe
+
+  gappweb:
+    image: aloxc/gappweb
+    depends_on:
+      - gapporder
+      - gappuser
+    environment:
+      ORDER_SERVER_HOST: gapporder
+      USER_SERVER_HOST: gappuser
+      WEB_SERVER_PORT: ":80"
