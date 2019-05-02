@@ -1,6 +1,9 @@
 package user
 
-import "testing"
+import (
+	"github.com/smallnest/rpcx/log"
+	"testing"
+)
 
 func TestGetUser(t *testing.T) {
 	var id int32 = 1
@@ -8,6 +11,7 @@ func TestGetUser(t *testing.T) {
 		Id: id,
 	}
 	GetUser(user)
+	log.Info(user.String())
 }
 func TestGetUserByIdAndPassowrd(t *testing.T) {
 	var id int32 = 1
