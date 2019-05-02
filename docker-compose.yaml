@@ -71,7 +71,7 @@ services:
       - gapporder
       - gappuser
     ports:
-      - 80:80
+      - :80
     environment:
       ORDER_SERVER_HOST: gapporder:13331
       USER_SERVER_HOST: gappuser:13331
