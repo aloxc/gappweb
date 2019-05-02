@@ -1,17 +1,24 @@
+version: "3"
 services:
   gappuserredis:
     image: redis
+    networks:
+      - gappnetwork
 
   gappusermysql:
     image: mysql:5.6.43
-      environment:
-        MYSQL_ROOT_PASSWORD: Xjentj53Ijr
-        MYSQL_DATABASE: gappuser
-      volumes:
-        - /gapp/user/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Xjentj53Ijr
+      MYSQL_DATABASE: gappuser
+    volumes:
+      - /gapp/user/mysql:/var/lib/mysql
+    networks:
+      - gappnetwork
 
   gappuser:
     image: aloxc/gappuser
+    networks:
+      - gappnetwork
     depends_on:
       - gappusermysql
       - gappuserredis
@@ -29,14 +36,18 @@ services:
 
   gappordermysql:
     image: mysql:5.6.43
-      environment:
-        MYSQL_ROOT_PASSWORD: Bweikjt34xe
-        MYSQL_DATABASE: gapporder
-      volumes:
-        - /gapp/order/mysql:/var/lib/mysql
+    networks:
+      - gappnetwork
+    environment:
+      MYSQL_ROOT_PASSWORD: Bweikjt34xe
+      MYSQL_DATABASE: gapporder
+    volumes:
+      - /gapp/order/mysql:/var/lib/mysql
 
   gapporder:
     image: aloxc/gapporder
+    networks:
+      - gappnetwork
     depends_on:
       - gappordermysql
     expose:
@@ -50,6 +61,8 @@ services:
 
   gappweb:
     image: aloxc/gappweb
+    networks:
+      - gappnetwork
     depends_on:
       - gapporder
       - gappuser
@@ -57,3 +70,8 @@ services:
       ORDER_SERVER_HOST: gapporder
       USER_SERVER_HOST: gappuser
       WEB_SERVER_PORT: ":80"
+      
+      
+networks:
+  gappnetwork:
+    driver: bridge
