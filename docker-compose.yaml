@@ -26,7 +26,7 @@ services:
     expose:
       - 13331
     environment:
-      REDIS_HOST : gappuserredis
+      REDIS_HOST : gappuserredis:6379
       REDIS_MAXIDLE : 1
       REDIS_MAXACTIVE : 10
       SERVER_PORT : 13331
