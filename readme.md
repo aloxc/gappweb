@@ -101,3 +101,117 @@ networks:
     driver: bridge
 ```
 ![运行截图](assert/run-1.0.png)
+
+使用swarm编排技术也没文件，见下面
+```shell
+version: "3"
+services:
+  gappuserredis:
+    image: redis:5.0.4
+    networks:
+      - gappnetwork
+    labels:
+      description: "gapp 用户服务依赖的redis"
+
+  gappusermysql:
+    image: mysql:5.6.43
+    command: --explicit_defaults_for_timestamp=true
+    environment:
+      MYSQL_ROOT_PASSWORD: Xjentj53Ijr
+      MYSQL_DATABASE: gappuser
+    volumes:
+      - usermysql:/var/lib/mysql
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - gappnetwork
+    labels:
+      description: "gapp 用户服务依赖的数据库"
+
+  gappuser:
+    image: aloxc/gappuser:1.0
+    networks:
+      - gappnetwork
+    depends_on:
+      - gappusermysql
+      - gappuserredis
+    environment:
+      REDIS_HOST : gappuserredis:6379
+      REDIS_MAXIDLE : 1
+      REDIS_MAXACTIVE : 10
+      SERVER_PORT : 13331
+      USER_MYSQL_DATABASE_NAME : gappuser
+      USER_MYSQL_HOST : gappusermysql:3306
+      USER_MYSQL_USER : root
+      USER_MYSQL_PASSWORD : Xjentj53Ijr
+      WAIT_MYSQL_SETUP_SECOND: 20
+    deploy:
+      mode: replicated
+      replicas: 3
+    labels:
+      description: "gapp 用户服务，使用rpcx"
+      author: aloxc(leerohwa#gmail.com)
+
+
+  gappordermysql:
+    image: mysql:5.6.43
+    command: --explicit_defaults_for_timestamp=true
+    environment:
+      MYSQL_ROOT_PASSWORD: Jjke34jcjexje*d
+      MYSQL_DATABASE: gapporder
+    volumes:
+      - ordermysql:/var/lib/mysql
+    networks:
+      - gappnetwork
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    labels:
+      description: "gapp 订单服务依赖的mysql数据库"
+
+  gapporder:
+    image: aloxc/gapporder:1.0
+    networks:
+      - gappnetwork
+    depends_on:
+      - gappordermysql
+    environment:
+      SERVER_PORT : 13331
+      ORDER_MYSQL_DATABASE_NAME : gapporder
+      ORDER_MYSQL_HOST : gappordermysql:3306
+      ORDER_MYSQL_USER : root
+      ORDER_MYSQL_PASSWORD : Jjke34jcjexje*d
+      WAIT_MYSQL_SETUP_SECOND: 20
+    deploy:
+      mode: replicated
+      replicas: 4
+    labels:
+      description: "gapp 订单服务，使用rpcx"
+      author: aloxc(leerohwa#gmail.com)
+
+  gappweb:
+    image: aloxc/gappweb:1.0
+    networks:
+      - gappnetwork
+    depends_on:
+      - gapporder
+      - gappuser
+    ports:
+      - 80:80
+    environment:
+      ORDER_SERVER_HOST: gapporder:13331
+      USER_SERVER_HOST: gappuser:13331
+      WEB_SERVER_PORT: ":80"
+    labels:
+      description: "gapp web前端服务，使用beego mvc"
+      author: aloxc(leerohwa#gmail.com)
+      
+networks:
+  gappnetwork:
+    driver: overlay
+
+volumes:
+  usermysql:
+  ordermysql:
+```
