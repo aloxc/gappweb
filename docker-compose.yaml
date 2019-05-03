@@ -43,11 +43,6 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-#    healthcheck:
-#      test: ["CMD","telnet","localhost","13331"]
-#      interval: 1m30s
-#      timeout: 2s
-#      retries: 3
     labels:
       description: "gapp 用户服务，使用rpcx"
       author: aloxc(leerohwa#gmail.com)
@@ -85,12 +80,6 @@ services:
     deploy:
       mode: replicated
       replicas: 4
-
-    #healthcheck:
-    #  test: ["CMD","telnet","localhost","13331"]
-    #  interval: 1m30s
-    #  timeout: 2s
-    #  retries: 3
     labels:
       description: "gapp 订单服务，使用rpcx"
       author: aloxc(leerohwa#gmail.com)
@@ -104,11 +93,6 @@ services:
       - gappuser
     ports:
       - 80:80
-#    healthcheck:
-#      test: ["CMD","curl","-f","http://localhost/"]
-#      interval: 90s
-#      timeout: 2s
-#      retries: 3
     environment:
       ORDER_SERVER_HOST: gapporder:13331
       USER_SERVER_HOST: gappuser:13331
