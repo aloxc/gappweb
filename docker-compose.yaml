@@ -1,7 +1,7 @@
 version: "3"
 services:
   gappuserredis:
-    image: redis
+    image: redis:5.0.4
     networks:
       - gappnetwork
 
@@ -17,7 +17,7 @@ services:
       - gappnetwork
 
   gappuser:
-    image: aloxc/gappuser
+    image: aloxc/gappuser:1.0
     networks:
       - gappnetwork
     depends_on:
@@ -48,7 +48,7 @@ services:
       - gappnetwork
 
   gapporder:
-    image: aloxc/gapporder
+    image: aloxc/gapporder:1.0
     networks:
       - gappnetwork
     depends_on:
@@ -64,7 +64,7 @@ services:
       WAIT_MYSQL_SETUP_SECOND: 20
 
   gappweb:
-    image: aloxc/gappweb
+    image: aloxc/gappweb:1.0
     networks:
       - gappnetwork
     depends_on:
